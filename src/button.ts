@@ -16,9 +16,9 @@
 
 import { CommandToolbarButton } from '@jupyterlab/apputils';
 import { DocumentRegistry, DocumentWidget } from '@jupyterlab/docregistry';
-
 import { CommandRegistry } from '@lumino/commands';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
+import { isNotebook } from './utils';
 
 import { CommandIDs } from './utils';
 
@@ -31,15 +31,24 @@ export class StreamlitButtonExtension
     this.commands = commands;
   }
   createNew(widget: DocumentWidget): IDisposable {
-    const button = new CommandToolbarButton({
-      commands: this.commands,
-      id: CommandIDs.openFromEditor,
-      label: ''
-    });
+    let button: CommandToolbarButton | undefined;
 
+    if (isNotebook(widget.context.path)) {
+      button = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.translate,
+        label: ''
+      });
+    } else {
+      button = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.openFromEditor,
+        label: ''
+      });
+    }
     widget.toolbar.insertItem(99, 'streamlit', button);
     return new DisposableDelegate(() => {
-      button.dispose();
+      button?.dispose();
     });
   }
 }

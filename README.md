@@ -16,11 +16,11 @@ limitations under the License.
 {% endcomment %}
 -->
 
-# Streamlit JupyterLab Extension
+# Auto Dashboards
 
-[![Github Actions Status](https://github.com/elyra-ai/streamlit-extension/workflows/Build/badge.svg)](https://github.com/elyra-ai/streamlit-extension/actions/workflows/build.yml)
+[![Github Actions Status](https://github.com/orbrx/auto-dashboards/workflows/Build/badge.svg)](https://github.com/orbrx/auto-dashboards/actions/workflows/build.yml)
 
-An extension to open a streamlit app within JupyterLab.
+Auto convert Jupyter notebooks to dashboards.
 
 ## Requirements
 
@@ -31,7 +31,7 @@ An extension to open a streamlit app within JupyterLab.
 To install the extension, execute:
 
 ```bash
-pip install elyra-streamlit-extension
+pip install orbrx-auto-dashboards
 ```
 
 ## Uninstall
@@ -39,7 +39,7 @@ pip install elyra-streamlit-extension
 To remove the extension, execute:
 
 ```bash
-pip uninstall elyra-streamlit-extension
+pip uninstall orbrx-auto-dashboards
 ```
 
 ## Troubleshoot
@@ -70,13 +70,13 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the streamlit_extension directory
+# Change directory to the auto_dashboards directory
 # Install package in development mode
 pip install -e .
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Server extension must be manually installed in develop mode
-jupyter server extension enable streamlit_extension
+jupyter server extension enable auto_dashboards
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -102,13 +102,13 @@ jupyter lab build --minimize=False
 
 ```bash
 # Server extension must be manually disabled in develop mode
-jupyter server extension disable streamlit_extension
-pip uninstall elyra-streamlit-extension
+jupyter server extension disable auto_dashboards
+pip uninstall orbrx-auto-dashboards
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `@elyra/streamlit-extension` within that folder.
+folder is located. Then you can remove the symlink named `@orbrx/auto-dashboards` within that folder.
 
 ### Packaging the extension
 

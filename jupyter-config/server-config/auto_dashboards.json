@@ -1,7 +1,7 @@
 {
   "ServerApp": {
     "jpserver_extensions": {
-      "streamlit_extension": true
+      "auto_dashboards": true
     }
   }
 }

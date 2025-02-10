@@ -34,7 +34,7 @@ def _jupyter_labextension_paths():
 
 def _jupyter_server_extension_points():
     return [{
-        "module": "streamlit_extension"
+        "module": "auto_dashboards"
     }]
 
 

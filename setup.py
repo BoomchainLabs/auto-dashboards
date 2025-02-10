@@ -26,7 +26,7 @@ HERE = Path(__file__).parent.resolve()
 pkg_json = json.loads((HERE / "package.json").read_bytes())
 
 # The name of the project
-name = "elyra-streamlit-extension"
+name = "orbrx-auto-dashboards"
 
 lab_path = (HERE / pkg_json["jupyterlab"]["outputDir"])
 
@@ -43,10 +43,10 @@ data_files_spec = [
      str(lab_path.relative_to(HERE)), "**"),
     ("share/jupyter/labextensions/%s" % labext_name, str("."), "install.json"),
     ("etc/jupyter/jupyter_server_config.d",
-     "jupyter-config/server-config", "streamlit_extension.json"),
+     "jupyter-config/server-config", "auto_dashboards.json"),
     # For backward compatibility with notebook server
     ("etc/jupyter/jupyter_notebook_config.d",
-     "jupyter-config/nb-config", "streamlit_extension.json"),
+     "jupyter-config/nb-config", "auto_dashboards.json"),
 ]
 
 long_description = (HERE / "README.md").read_text()
@@ -72,7 +72,9 @@ setup_args = dict(
     install_requires=[
         "jupyter_server>=1.6,<2",
         "jupyter-server-proxy",
-        "streamlit"
+        "streamlit",
+        "nbformat",
+        "openai"
     ],
     zip_safe=False,
     include_package_data=True,

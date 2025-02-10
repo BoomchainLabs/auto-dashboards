@@ -16,7 +16,7 @@ limitations under the License.
 {% endcomment %}
 -->
 
-# Making a new release of streamlit_extension
+# Making a new release of auto_dashboards
 
 The extension can be published to `PyPI` and `npm` manually or using the [Jupyter Releaser](https://github.com/jupyter-server/jupyter_releaser).
 

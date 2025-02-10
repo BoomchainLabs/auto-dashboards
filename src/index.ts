@@ -24,7 +24,9 @@ import {
   IFrame,
   MainAreaWidget,
   showDialog,
-  WidgetTracker
+  showErrorMessage,
+  WidgetTracker,
+  Notification
 } from '@jupyterlab/apputils';
 import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
@@ -34,12 +36,12 @@ import path from 'path';
 import { StreamlitButtonExtension } from './button';
 
 import { requestAPI } from './handler';
-import { CommandIDs, getCookie, streamlitIcon } from './utils';
+import { CommandIDs, getCookie, isNotebook, streamlitIcon } from './utils';
 
-const NAMESPACE = '@elyra/streamlit-extension';
+const NAMESPACE = '@orbrx/auto-dashboards';
 
 const serverErrorMessage =
-  'There was an issue with the streamlit_extension server extension.';
+  'There was an issue with the auto_dashboards server extension.';
 
 export const syncXsrfCookie = (): void => {
   const xsrf = getCookie('_xsrf');
@@ -66,30 +68,63 @@ export const checkCookie = (function () {
   };
 })();
 
-const getStreamlitApp = async (file: string): Promise<string> => {
-  return await requestAPI<any>('app', {
-    method: 'POST',
-    body: JSON.stringify({ file })
-  })
-    .then(data => {
-      return data.url;
-    })
-    .catch(reason => {
-      console.error(`${serverErrorMessage}\n${reason}`);
+const getStreamlitApp = async (file: string): Promise<string | undefined> => {
+  try {
+    const data = await requestAPI<any>('app', {
+      method: 'POST',
+      body: JSON.stringify({ file })
     });
+    return data.url;
+  } catch (reason) {
+    console.error(`${serverErrorMessage}\n${reason}`);
+    return undefined;
+  }
 };
 
-const stopStreamlitApp = async (file: string): Promise<string> => {
-  return await requestAPI<any>('app', {
-    method: 'DELETE',
-    body: JSON.stringify({ file })
-  }).catch(reason => {
+const stopStreamlitApp = async (file: string): Promise<void> => {
+  try {
+    await requestAPI<any>('app', {
+      method: 'DELETE',
+      body: JSON.stringify({ file })
+    });
+  } catch (reason) {
     console.error(`${serverErrorMessage}\n${reason}`);
-  });
+  }
+};
+
+const translateNotebook = async (
+  file: string,
+  id: string
+): Promise<string | undefined> => {
+  try {
+    console.log('translateNotebook called with file:', file);
+    const data = await requestAPI<any>('translate', {
+      method: 'POST',
+      body: JSON.stringify({ file })
+    });
+    console.log('translateNotebook response:', data);
+    Notification.update({
+      id,
+      message: 'Dashboard is ready',
+      type: 'success',
+      autoClose: 2000
+    });
+    return data.url;
+  } catch (reason) {
+    console.error(`${serverErrorMessage}\n${reason}`);
+    showErrorMessage('Error translating notebook', reason);
+    Notification.update({
+      id,
+      message: `Error translating notebook: ${reason}`,
+      type: 'error',
+      autoClose: false
+    });
+    return undefined;
+  }
 };
 
 /**
- * Initialization data for the streamlit-extension extension.
+ * Initialization data for the auto-dashboardsextension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: NAMESPACE,
@@ -102,12 +137,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
     factory: IFileBrowserFactory,
     restorer: ILayoutRestorer | null
   ) => {
-    console.log('JupyterLab extension streamlit-extension is activated!');
+    console.log('JupyterLab extension auto-dashboards is activated!');
 
     requestAPI<any>('app')
       .then(data => {
         console.log(
-          'streamlit_extension server extension successfully started'
+          'auto_dashboards server extension successfully started'
         );
       })
       .catch(reason => {
@@ -128,6 +163,49 @@ const plugin: JupyterFrontEndPlugin<void> = {
         name: widget => widget.id
       });
     }
+
+    app.commands.addCommand(CommandIDs.translate, {
+      label: 'Translate Notebook to Streamlit',
+      icon: streamlitIcon,
+      execute: async () => {
+        console.log('Translate command executed');
+        const widget = app.shell.currentWidget;
+        if (!widget) {
+          console.log('No active widget found');
+          return;
+        }
+        let filePath: string;
+        // Use context.path if available for notebook panels, otherwise fallback to widget.id splitting
+        if ((widget as any).context && (widget as any).context.path) {
+          filePath = (widget as any).context.path;
+        } else {
+          filePath = widget.id.split(':')[1];
+        }
+        if (!isNotebook(filePath)) {
+          console.log('No notebook found');
+          return;
+        }
+        console.log('Calling translateNotebook with path:', filePath);
+
+        const id = Notification.emit('Creating dashboard...', 'in-progress', {
+          autoClose: false
+        });
+
+        const url = await translateNotebook(filePath, id);
+        console.log('translateNotebook returned URL:', url);
+        if (url) {
+          // Open the URL in a new tab
+          // window.open(url, '_blank');
+          const translatedFilePath = filePath.replace(/\.ipynb$/, '.py');
+          await app.commands.execute(CommandIDs.open, { file: translatedFilePath });
+          Notification.dismiss(id);
+        }
+      },
+      isVisible: () => {
+        const widget = app.shell.currentWidget;
+        return widget && isNotebook(widget.id) || false;
+      }
+    });
 
     app.commands.addCommand(CommandIDs.open, {
       label: 'Streamlit',
@@ -162,7 +240,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         });
 
         await tracker.add(main);
-        app.shell.add(main, 'main');
+        app.shell.add(main, 'main', { mode: 'split-right' });
 
         // Set iframe url last to not block widget creation on webapp startup
         const url = await urlPromise;
@@ -224,10 +302,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
       'Editor',
       new StreamlitButtonExtension(app.commands)
     );
-
-    // Add button to Elyra Python Editor if installed
     app.docRegistry.addWidgetExtension(
-      'Python Editor',
+      'Notebook',
       new StreamlitButtonExtension(app.commands)
     );
 
@@ -242,6 +318,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
       command: CommandIDs.openFromEditor,
       rank: 999
     });
+
+  app.contextMenu.addItem({
+    selector: '.jp-Notebook',
+    command: CommandIDs.translate,
+    rank: 999
+  });
 
     // Poll changes to cookies and prevent the deletion of _xsrf by Streamlit
     // _xsrf deletion issue: https://github.com/streamlit/streamlit/issues/2517

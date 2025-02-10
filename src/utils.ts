@@ -21,7 +21,8 @@ import iconSvg from '../style/streamlit-mark-color.svg';
 export const CommandIDs = {
   open: 'streamlit:open',
   openFromBrowser: 'streamlit:open-browser',
-  openFromEditor: 'streamlit:open-file'
+  openFromEditor: 'streamlit:open-file',
+  translate: 'streamlit:translate'
 };
 
 export const streamlitIcon = new LabIcon({
@@ -31,3 +32,7 @@ export const streamlitIcon = new LabIcon({
 
 export const getCookie = (key: string): string =>
   document.cookie.match('(^|;)\\s*' + key + '\\s*=\\s*([^;]+)')?.pop() || '';
+
+export const isNotebook = (filePath: string): boolean => {
+    return filePath.endsWith('.ipynb');
+}
