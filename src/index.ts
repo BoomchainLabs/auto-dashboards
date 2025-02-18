@@ -112,7 +112,11 @@ const translateNotebook = async (
     return data.url;
   } catch (reason) {
     console.error(`${serverErrorMessage}\n${reason}`);
-    showErrorMessage('Error translating notebook', reason);
+    if (reason instanceof Error) {
+      showErrorMessage('Error translating notebook', reason);
+    } else {
+      showErrorMessage('Error translating notebook', new Error(String(reason)));
+    }
     Notification.update({
       id,
       message: `Error translating notebook: ${reason}`,
@@ -270,11 +274,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
         if (!currentWidget) {
           return;
         }
-        const item = currentWidget.selectedItems().next();
-        if (!item) {
+        const result = currentWidget.selectedItems().next();
+        if (result.done || !result.value) {
           return;
         }
-
+        const item = result.value;
         await app.commands.execute(CommandIDs.open, {
           file: item.path
         });

@@ -70,7 +70,7 @@ setup_args = dict(
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
     install_requires=[
-        "jupyter_server>=1.6,<2",
+        "jupyter_server>=2,<3",
         "jupyter-server-proxy",
         "streamlit",
         "nbformat",
