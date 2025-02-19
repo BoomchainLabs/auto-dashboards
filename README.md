@@ -24,14 +24,14 @@ Auto convert Jupyter notebooks to dashboards.
 
 ## Requirements
 
-- JupyterLab >= 3.0
+- JupyterLab >= 4.2
 
 ## Install
 
 To install the extension, execute:
 
 ```bash
-pip install orbrx-auto-dashboards
+pip install auto-dashboards
 ```
 
 ## Uninstall
@@ -39,7 +39,7 @@ pip install orbrx-auto-dashboards
 To remove the extension, execute:
 
 ```bash
-pip uninstall orbrx-auto-dashboards
+pip uninstall auto-dashboards
 ```
 
 ## Troubleshoot
@@ -103,7 +103,7 @@ jupyter lab build --minimize=False
 ```bash
 # Server extension must be manually disabled in develop mode
 jupyter server extension disable auto_dashboards
-pip uninstall orbrx-auto-dashboards
+pip uninstall auto-dashboards
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`

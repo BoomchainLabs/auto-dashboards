@@ -468,7 +468,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/application@npm:^4.1.0":
+"@jupyterlab/application@npm:^4.2.0":
   version: 4.3.5
   resolution: "@jupyterlab/application@npm:4.3.5"
   dependencies:
@@ -496,7 +496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/apputils@npm:^4.1.0, @jupyterlab/apputils@npm:^4.4.5":
+"@jupyterlab/apputils@npm:^4.2.0, @jupyterlab/apputils@npm:^4.4.5":
   version: 4.4.5
   resolution: "@jupyterlab/apputils@npm:4.4.5"
   dependencies:
@@ -525,7 +525,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/builder@npm:^4.1.0":
+"@jupyterlab/builder@npm:^4.2.0":
   version: 4.3.5
   resolution: "@jupyterlab/builder@npm:4.3.5"
   dependencies:
@@ -632,7 +632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/coreutils@npm:^4.1.0":
+"@jupyterlab/coreutils@npm:^4.2.0":
   version: 4.3.1
   resolution: "@jupyterlab/coreutils@npm:4.3.1"
   dependencies:
@@ -686,7 +686,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/docregistry@npm:^4.1.0, @jupyterlab/docregistry@npm:^4.3.5":
+"@jupyterlab/docregistry@npm:^4.2.0, @jupyterlab/docregistry@npm:^4.3.5":
   version: 4.3.5
   resolution: "@jupyterlab/docregistry@npm:4.3.5"
   dependencies:
@@ -731,7 +731,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/filebrowser@npm:^4.1.0":
+"@jupyterlab/filebrowser@npm:^4.2.0":
   version: 4.3.5
   resolution: "@jupyterlab/filebrowser@npm:4.3.5"
   dependencies:
@@ -759,7 +759,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/fileeditor@npm:^4.1.0":
+"@jupyterlab/fileeditor@npm:^4.2.0":
   version: 4.3.5
   resolution: "@jupyterlab/fileeditor@npm:4.3.5"
   dependencies:
@@ -963,7 +963,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/ui-components@npm:^4.1.0, @jupyterlab/ui-components@npm:^4.3.5":
+"@jupyterlab/ui-components@npm:^4.2.0, @jupyterlab/ui-components@npm:^4.3.5":
   version: 4.3.5
   resolution: "@jupyterlab/ui-components@npm:4.3.5"
   dependencies:
@@ -1454,15 +1454,15 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@orbrx/auto-dashboards@workspace:."
   dependencies:
-    "@jupyterlab/application": ^4.1.0
-    "@jupyterlab/apputils": ^4.1.0
-    "@jupyterlab/builder": ^4.1.0
-    "@jupyterlab/coreutils": ^4.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/filebrowser": ^4.1.0
-    "@jupyterlab/fileeditor": ^4.1.0
+    "@jupyterlab/application": ^4.2.0
+    "@jupyterlab/apputils": ^4.2.0
+    "@jupyterlab/builder": ^4.2.0
+    "@jupyterlab/coreutils": ^4.2.0
+    "@jupyterlab/docregistry": ^4.2.0
+    "@jupyterlab/filebrowser": ^4.2.0
+    "@jupyterlab/fileeditor": ^4.2.0
     "@jupyterlab/services": ^7.0.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/ui-components": ^4.2.0
     "@lumino/algorithm": ^2.0.0
     "@lumino/commands": ^2.0.0
     "@lumino/disposable": ^2.0.0
