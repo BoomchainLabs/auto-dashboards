@@ -95,8 +95,6 @@ class TranslateHandler(APIHandler):
         prompt += "```\n"
         prompt += "Only output the Streamlit code and no comments or explanations."
 
-        print(f"Prompt for LLM: {prompt}")
-
         # Call LLM API
         try:
             api_key = os.environ.get("OPENAI_API_KEY")
