@@ -23,6 +23,10 @@ limitations under the License.
 
 Auto convert Jupyter notebooks to dashboards.
 
+https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
+
+
+
 ## Requirements
 
 - JupyterLab >= 4.2
