@@ -21,15 +21,15 @@ limitations under the License.
 
 [![Github Actions Status](https://github.com/orbrx/auto-dashboards/workflows/Build/badge.svg)](https://github.com/orbrx/auto-dashboards/actions/workflows/build.yml)
 
-Auto convert Jupyter notebooks to dashboards.
+Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
 https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
-
 
 
 ## Requirements
 
 - JupyterLab >= 4.2
+- OpenAI
 
 ## Install
 
@@ -62,6 +62,12 @@ the frontend extension, check the frontend extension is installed:
 ```bash
 jupyter labextension list
 ```
+
+## Acknowledgments
+
+This extension is initially based on the Elyra AI Toolkit's [Streamlit extension](https://github.com/elyra-ai/streamlit-extension) that provides Streamlit execution and preview functionality.
+
+This extension is inspired by the POC from a wonderful BreakThrough AI Team during the Fall 2023 session: [@anikaguin](https://github.com/anikaguin), [mpate154](https://github.com/mpate154), [z3yn3p-alta](https://github.com/z3yn3p-alta). Check out their [project](https://github.com/anikaguin/Axle-Informatics/tree/main).
 
 ## Contributing
 
