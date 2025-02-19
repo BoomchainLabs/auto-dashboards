@@ -30,7 +30,7 @@ https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
 
 - JupyterLab >= 4.2
 - OpenAI
-    - you are required to provide your OpenAI API key to use the extension. Export it before starting JupyterLab:
+    - you are required to provide your OpenAI API key to be able to convert notebooks to dashboards. Export it before starting JupyterLab:
     ```bash
     export OPENAI_API_KEY="your-api-key"
     ```
