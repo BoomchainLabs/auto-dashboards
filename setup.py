@@ -1,5 +1,6 @@
 #
 # Copyright 2018-2023 Elyra Authors
+# Copyright 2025 Orange Bricks
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ HERE = Path(__file__).parent.resolve()
 pkg_json = json.loads((HERE / "package.json").read_bytes())
 
 # The name of the project
-name = "orbrx-auto-dashboards"
+name = "auto-dashboards"
 
 lab_path = (HERE / pkg_json["jupyterlab"]["outputDir"])
 
@@ -80,7 +81,7 @@ setup_args = dict(
     include_package_data=True,
     python_requires=">=3.9",
     platforms="Linux, Mac OS X, Windows",
-    keywords=["Jupyter", "JupyterLab", "JupyterLab3"],
+    keywords=["Jupyter", "JupyterLab", "JupyterLab4"],
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
@@ -88,6 +89,7 @@ setup_args = dict(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Framework :: Jupyter",
         "Framework :: Jupyter :: JupyterLab",
         "Framework :: Jupyter :: JupyterLab :: 3",

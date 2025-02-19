@@ -1,5 +1,6 @@
 #
 # Copyright 2017-2023 Elyra Authors
+# Copyright 2025 Orange Bricks
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,12 +35,12 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: 3.12
           architecture: 'x64'
       - name: Install node
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: '20.x'
 
 
       - name: Get pip cache dir
@@ -74,5 +75,5 @@ jobs:
       - name: Upload Distributions
         uses: actions/upload-artifact@v2
         with:
-          name: orbrx-auto-dashboards-releaser-dist-${{ github.run_number }}
+          name: auto-dashboards-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
