@@ -198,17 +198,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
         const url = await translateNotebook(filePath, id);
         console.log('translateNotebook returned URL:', url);
         if (url) {
-          // Open the URL in a new tab
-          // window.open(url, '_blank');
           const translatedFilePath = filePath.replace(/\.ipynb$/, '.py');
           await app.commands.execute(CommandIDs.open, { file: translatedFilePath });
           Notification.dismiss(id);
         }
       },
-      isVisible: () => {
-        const widget = app.shell.currentWidget;
-        return widget && isNotebook(widget.id) || false;
-      }
     });
 
     app.commands.addCommand(CommandIDs.open, {
@@ -266,7 +260,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(CommandIDs.openFromBrowser, {
       label: 'Run in Streamlit',
       icon: streamlitIcon,
-      isVisible: () =>
+      isVisible: () => 
         !!factory.tracker.currentWidget &&
         factory.tracker.currentWidget.selectedItems().next !== undefined,
       execute: async () => {
@@ -293,10 +287,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
         const path = widget.context.path;
         return app.commands.execute(CommandIDs.open, { file: path });
-      },
-      isVisible: () => {
-        const widget = editorTracker.currentWidget;
-        return (widget && path.extname(widget.context.path) === '.py') || false;
       },
       icon: streamlitIcon,
       label: 'Run in Streamlit'
