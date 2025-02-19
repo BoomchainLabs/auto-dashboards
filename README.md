@@ -30,6 +30,10 @@ https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
 
 - JupyterLab >= 4.2
 - OpenAI
+    - you are required to provide your OpenAI API key to use the extension. Export it before starting JupyterLab:
+    ```bash
+    export OPENAI_API_KEY="your-api-key"
+    ```
 
 ## Install
 
@@ -67,7 +71,7 @@ jupyter labextension list
 
 This extension is initially based on the Elyra AI Toolkit's [Streamlit extension](https://github.com/elyra-ai/streamlit-extension) that provides Streamlit execution and preview functionality.
 
-This extension is inspired by the POC from a wonderful BreakThrough AI Team during the Fall 2023 session: [@anikaguin](https://github.com/anikaguin), [mpate154](https://github.com/mpate154), [z3yn3p-alta](https://github.com/z3yn3p-alta). Check out their [project](https://github.com/anikaguin/Axle-Informatics/tree/main).
+This extension is inspired by the POC from a wonderful BreakThrough AI Team during the Fall 2023 session: [@anikaguin](https://github.com/anikaguin), [@mpate154](https://github.com/mpate154), [@z3yn3p-alta](https://github.com/z3yn3p-alta). Check out their [project](https://github.com/anikaguin/Axle-Informatics/tree/main).
 
 ## Contributing
 
