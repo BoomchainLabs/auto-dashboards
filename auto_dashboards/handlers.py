@@ -23,14 +23,14 @@ import nbformat
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 from openai import OpenAI
-from auto_dashboards.process_manager import StreamlitManager
+from auto_dashboards.process_manager import DashboardManager
 import tornado
 
 
 class RouteHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        appList = StreamlitManager.instance().list()
+        appList = DashboardManager.instance().list()
         instances = {}
         for key in appList:
             instances[key] = appList[key].internal_host_url
@@ -42,8 +42,8 @@ class RouteHandler(APIHandler):
         json_payload = self.get_json_body()
         streamlit_app_filepath = json_payload['file']
 
-        streamlit_app = StreamlitManager.instance().start(
-            streamlit_app_filepath=streamlit_app_filepath
+        streamlit_app = DashboardManager.instance().start(
+            path=streamlit_app_filepath
         )
 
         self.finish(json.dumps({
@@ -56,8 +56,8 @@ class RouteHandler(APIHandler):
         json_payload = self.get_json_body()
         streamlit_app_filepath = json_payload['file']
 
-        StreamlitManager.instance().stop(
-            streamlit_app_filepath=streamlit_app_filepath
+        DashboardManager.instance().stop(
+            path=streamlit_app_filepath
         )
 
 
@@ -69,7 +69,7 @@ class TranslateHandler(APIHandler):
             json_payload = self.get_json_body()
             notebook_path = json_payload['file']
         except Exception as e:
-            print(f"Error getting JSON payload: {e}")
+            self.log.error(f"Error getting JSON payload: {e}")
             self.set_status(500)
             self.finish(json.dumps({"error": f"Error getting JSON payload: {e}"}))
             return
@@ -77,7 +77,7 @@ class TranslateHandler(APIHandler):
         # Read notebook content
         try:
             nb = nbformat.read(notebook_path, as_version=4)
-            print(f"Successfully read notebook: {notebook_path}")
+            self.log.debug(f"Successfully read notebook: {notebook_path}")
         except Exception as e:
             self.set_status(500)
             self.finish(json.dumps({"error": f"Error reading notebook: {e}"}))
@@ -109,7 +109,7 @@ class TranslateHandler(APIHandler):
                         "content": prompt,
                     }
                 ],
-                model="gpt-4o",
+                model="gpt-4o-mini",
             )
             generated_code = chat_completion.choices[0].message.content.strip()
 
@@ -121,9 +121,9 @@ class TranslateHandler(APIHandler):
                 if len(lines) > 1:
                     generated_code = "\n".join(lines[1:-1]).strip()
 
-            print("Successfully called LLM API")
+            self.log.debug("Successfully called LLM API")
         except Exception as e:
-            print(f"Error calling LLM API: {e}")
+            self.log.error(f"Error calling LLM API: {e}")
             self.set_status(500)
             self.finish(json.dumps({"error": f"Error calling LLM API: {e}"}))
             return
@@ -135,20 +135,20 @@ class TranslateHandler(APIHandler):
         try:
             with open(output_path, 'w') as f:
                 f.write(generated_code)
-            print(f"Successfully wrote Streamlit code to: {output_path}")
+            self.log.debug(f"Successfully wrote Streamlit code to: {output_path}")
 
         except Exception as e:
-            print(f"Error writing output file: {e}")
+            self.log.error(f"Error writing output file: {e}")
             self.set_status(500)
             self.finish(json.dumps({"error": f"Error writing output file: {e}"}))
             return
 
         # Start Streamlit app
         try:
-            streamlit_app = StreamlitManager.instance().start(
-                streamlit_app_filepath=output_path
+            streamlit_app = DashboardManager.instance().start(
+                path=output_path
             )
-            print(f"Successfully started Streamlit app at: {streamlit_app.port}")
+            self.log.debug(f"Successfully started Streamlit app at: {streamlit_app.port}")
         except Exception as e:
             self.set_status(500)
             self.finish(json.dumps({"error": f"Error starting Streamlit app: {e}"}))

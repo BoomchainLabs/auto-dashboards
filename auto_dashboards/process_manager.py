@@ -1,5 +1,6 @@
 #
 # Copyright 2017-2023 Elyra Authors
+# Copyright 2025 Orange Bricks
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,104 +15,110 @@
 # limitations under the License.
 #
 
+from abc import ABC, ABCMeta, abstractmethod
 import os
 import sys
 import socket
-from subprocess import Popen
-from subprocess import CalledProcessError
-from subprocess import PIPE
+from subprocess import Popen, CalledProcessError, PIPE
 from typing import Dict
-from traitlets.config import SingletonConfigurable
-from traitlets.config import LoggingConfigurable
+from traitlets.config import SingletonConfigurable, LoggingConfigurable
 from urllib.parse import urlparse
 
+# Combined metaclass for BaseDashboard
+class DashboardMeta(ABCMeta, type(LoggingConfigurable)):
+    pass
 
-class StreamlitManager(SingletonConfigurable):
-    """Class to keep track of streamlit application instances and manage
-    lifecycles
+
+class DashboardManager(SingletonConfigurable):
+    """Singleton class to keep track of dashboard instances and manage
+    their lifecycles
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.streamlit_instances = {}
+        self.dashboard_instances = {}
 
     def list(self) -> Dict:
-        return self.streamlit_instances
+        return self.dashboard_instances
 
-    def start(self, streamlit_app_filepath: str) -> 'StreamlitApplication':
-        if streamlit_app_filepath in self.streamlit_instances.keys():
-            return self.streamlit_instances[streamlit_app_filepath]
-        streamlit_app = StreamlitApplication(
-            streamlit_app_filepath=streamlit_app_filepath)
-        streamlit_app.start()
-        self.streamlit_instances[streamlit_app_filepath] = streamlit_app
-        return streamlit_app
+    def start(self, path: str) -> 'BaseDashboard':
+        if path in self.dashboard_instances.keys():
+            return self.dashboard_instances[path]
+        dashboard_app = StreamlitApplication(path=path)
+        dashboard_app.start()
+        self.dashboard_instances[path] = dashboard_app
+        return dashboard_app
 
-    def stop(self, streamlit_app_filepath: str) -> None:
-        streamlit_app = self.streamlit_instances.get(streamlit_app_filepath)
-        if streamlit_app:
-            streamlit_app.stop()
-            del self.streamlit_instances[streamlit_app_filepath]
+    def stop(self, path: str) -> None:
+        dashboard_app = self.dashboard_instances.get(path)
+        if dashboard_app:
+            dashboard_app.stop()
+            del self.dashboard_instances[path]
         else:
             self.log.info(
                 "Unable to find running instance of ",
-                f"{streamlit_app_filepath} application"
+                f"{path} application"
             )
 
-    def restart(self, streamlit_app_filepath: str) -> None:
+    def restart(self, path: str) -> None:
         """
         Forces a restart of a streamlit application.
         NOTE: does not restart a "stopped" application process
         :param streamlit_app_filepath:
         :return:
         """
-        streamlit_app = self.streamlit_instances.get(streamlit_app_filepath)
-        if streamlit_app:
-            streamlit_app.stop()
-            streamlit_app.start()
+        dashboard_app = self.dashboard_instances.get(path)
+        if dashboard_app:
+            dashboard_app.stop()
+            dashboard_app.start()
         else:
             self.log.info(
                 "Unable to find running instance of ",
-                f"{streamlit_app_filepath} application"
+                f"{path} application"
             )
 
-
-class StreamlitApplication(LoggingConfigurable):
-    def __init__(self, streamlit_app_filepath: str, **kwargs):
+class BaseDashboard(LoggingConfigurable, metaclass=DashboardMeta):
+    """
+    Abstract base class for all dashboards
+    """
+    def __init__(self, path: str, **kwargs):
         """
-        :param streamlit_app_filepath: the relative path to the streamlit
-        application file (*.py) :param kwargs:
+        :param path: the path to the dashboard application
         """
         super().__init__(**kwargs)
+        self.path = path
+        self.app_start_dir = os.path.dirname(path)
+        self.app_basename = os.path.basename(path)
+        self.port = get_open_port()
+        self.process = None
         self.internal_host = {}
         self.external_host = {}
-        self.port = get_open_port()
-        self.app_start_dir = os.path.dirname(streamlit_app_filepath)
-        self.app_basename = os.path.basename(streamlit_app_filepath)
-        self.streamlit_cmd = [
-            sys.executable, "-m", "streamlit", "run", self.app_basename,
-            "--browser.gatherUsageStats=false",  # turn off usage stats upload
-            "--server.runOnSave=true",  # auto refresh app on save
-            "--server.headless=true",  # run headless, avoids email sign up
-            "--server.port", self.port
-        ]
-        self.process = None
+
+    @abstractmethod
+    def get_run_command(self) -> list:
+        """
+        Return the start command as a list to launch the dashboard application.
+        """
+        pass
 
     def start(self) -> None:
+        """
+        Start the dashboard application
+        """
         if not self.process or not self.is_alive():
             self.log.info(
-                f"Starting Streamlit application '{self.app_basename}' ",
+                f"Starting dashboard '{self.app_basename}' ",
                 f"on port {self.port}"
             )
+            cmd = self.get_run_command()
             try:
                 if self.app_start_dir:
-                    self.process = Popen(self.streamlit_cmd,
-                                         cwd=self.app_start_dir, stdout=PIPE)
+                    self.process = Popen(cmd, cwd=self.app_start_dir, stdout=PIPE)
                 else:
-                    self.process = Popen(self.streamlit_cmd, stdout=PIPE)
+                    self.process = Popen(cmd, stdout=PIPE)
             except CalledProcessError as error:
                 self.log.info(
-                    "Failed to start Streamlit application ",
+                    "Failed to start dashboard ",
                     f"on port {self.port} due to {error}"
                 )
 
@@ -123,18 +130,21 @@ class StreamlitApplication(LoggingConfigurable):
             external_url_line = self.process.stdout.readline().decode('utf-8')
             self.internal_host = parse_hostname(internal_url_line)
             self.external_host = parse_hostname(external_url_line)
-
+    
     def stop(self) -> None:
+        """
+        Stop the dashboard application
+        """
         if self.process:
             self.log.info(
-                f"Stopping Streamlit application '{self.app_basename}' ",
+                f"Stopping dashboard '{self.app_basename}' ",
                 f"on port {self.port}"
             )
             self.process.terminate()
             self.process = None
         else:
             self.log.info(
-                f"Streamlit application '{self.app_basename}' is not running"
+                f"Dashboard '{self.app_basename}' is not running"
             )
 
     def is_alive(self) -> bool:
@@ -145,6 +155,20 @@ class StreamlitApplication(LoggingConfigurable):
             return False if self.process.poll() else True
         else:
             return False
+
+
+class StreamlitApplication(BaseDashboard):
+    def __init__(self, path: str, **kwargs):
+        super().__init__(path, **kwargs)
+
+    def get_run_command(self) -> list:
+        return [
+            sys.executable, "-m", "streamlit", "run", self.app_basename,
+            "--browser.gatherUsageStats=false",  # turn off usage stats upload
+            "--server.runOnSave=true",  # auto refresh app on save
+            "--server.headless=true",  # run headless, avoids email sign up
+            "--server.port", self.port
+        ]
 
 
 def get_open_port() -> str:
