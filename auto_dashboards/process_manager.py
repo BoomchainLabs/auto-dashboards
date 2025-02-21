@@ -17,9 +17,11 @@
 
 from abc import ABC, ABCMeta, abstractmethod
 import os
+import re
 import sys
 import socket
 from subprocess import Popen, CalledProcessError, PIPE
+from time import sleep
 from typing import Dict
 from traitlets.config import SingletonConfigurable, LoggingConfigurable
 from urllib.parse import urlparse
@@ -28,6 +30,14 @@ from urllib.parse import urlparse
 class DashboardMeta(ABCMeta, type(LoggingConfigurable)):
     pass
 
+def extract_url(text: str):
+    # Basic regex pattern to match an HTTP/HTTPS URL
+    url_pattern = re.compile(r'(https?://\S+)')
+    
+    match = url_pattern.search(text)
+    if match:
+        return match.group(1)
+    return None
 
 class DashboardManager(SingletonConfigurable):
     """Singleton class to keep track of dashboard instances and manage
@@ -92,7 +102,6 @@ class BaseDashboard(LoggingConfigurable, metaclass=DashboardMeta):
         self.port = get_open_port()
         self.process = None
         self.internal_host = {}
-        self.external_host = {}
 
     @abstractmethod
     def get_run_command(self) -> list:
@@ -122,14 +131,7 @@ class BaseDashboard(LoggingConfigurable, metaclass=DashboardMeta):
                     f"on port {self.port} due to {error}"
                 )
 
-            # Voodoo magic, needs to 'hit' the process otherwise server will
-            # not serve
-            for i in range(3):
-                self.process.stdout.readline()
-            internal_url_line = self.process.stdout.readline().decode('utf-8')
-            external_url_line = self.process.stdout.readline().decode('utf-8')
-            self.internal_host = parse_hostname(internal_url_line)
-            self.external_host = parse_hostname(external_url_line)
+            self.internal_host = self.parse_hostname()
     
     def stop(self) -> None:
         """
@@ -155,6 +157,17 @@ class BaseDashboard(LoggingConfigurable, metaclass=DashboardMeta):
             return False if self.process.poll() else True
         else:
             return False
+    
+    @abstractmethod
+    def parse_hostname(self) -> Dict:
+        """
+        Fragile function to extract hostname from the process output
+        :return: hostname and scheme
+        """
+        return {
+            "host": "localhost",
+            "scheme": "http"
+        }
 
 
 class StreamlitApplication(BaseDashboard):
@@ -169,7 +182,62 @@ class StreamlitApplication(BaseDashboard):
             "--server.headless=true",  # run headless, avoids email sign up
             "--server.port", self.port
         ]
+    
+    def parse_hostname(self) -> Dict:
+        # Streamlit process output looks like:
+        #   
+        #   You can now view your Streamlit app in your browser.
+        #
+        #   Local URL: http://localhost:12345
 
+        # Skip 3 lines withouth useful information
+        for i in range(3):
+            self.process.stdout.readline()
+        internal_url_line = self.process.stdout.readline().decode('utf-8')
+
+        # Extract URL from output line
+        url = extract_url(internal_url_line)
+        url_obj = urlparse(url)
+
+        return {
+            "host": url_obj.hostname,
+            "scheme": url_obj.scheme
+        }
+
+
+class SolaraApplication(BaseDashboard):
+    def __init__(self, path: str, **kwargs):
+        super().__init__(path, **kwargs)
+
+    def get_run_command(self) -> list:
+        return [
+            sys.executable, "-m", "solara", "run", self.app_basename,
+            "--port", self.port,
+            "--production",
+            "--workers", "1",
+            "--no-open",
+            "--host", "localhost",
+            "--root-path", f"/proxy/{self.port}"
+        ]
+    
+    def parse_hostname(self) -> Dict:
+        # Solara process output looks like:
+        #   Solara server is starting at http://localhost:12345
+
+        # Parse output line ("Solara server is starting at http://localhost:12345")
+        output_line = self.process.stdout.readline().decode('utf-8')
+
+        # Wait for the server to get ready to accept connections
+        sleep(1)
+
+        # Extract URL from output line
+        url = extract_url(output_line)
+        url_obj = urlparse(url)
+        
+        return {
+            "host": url_obj.hostname,
+            "scheme": url_obj.scheme
+        }
 
 def get_open_port() -> str:
     """
@@ -179,19 +247,3 @@ def get_open_port() -> str:
     sock = socket.socket()
     sock.bind(('', 0))
     return str(sock.getsockname()[1])
-
-
-def parse_hostname(parse_line: str) -> Dict:
-    """
-    Fragile function to parse out the URL from the output log
-    :param parse_line:
-    :return:
-    """
-    remove_newlines_line = parse_line.rstrip('\n')
-    strip_line = remove_newlines_line.strip()
-    tokenize_line = strip_line.split(" ")[2]
-    url_obj = urlparse(tokenize_line)
-    return {
-        "host": url_obj.hostname,
-        "scheme": url_obj.scheme
-    }

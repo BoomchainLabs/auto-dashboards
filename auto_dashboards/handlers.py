@@ -33,17 +33,17 @@ class RouteHandler(APIHandler):
         appList = DashboardManager.instance().list()
         instances = {}
         for key in appList:
-            instances[key] = appList[key].internal_host_url
+            instances[key] = appList[key].internal_host
         self.finish(json.dumps(instances))
 
     @tornado.web.authenticated
     def post(self):
         # parse filename and location
         json_payload = self.get_json_body()
-        streamlit_app_filepath = json_payload['file']
+        dashboard_filepath = json_payload['file']
 
         streamlit_app = DashboardManager.instance().start(
-            path=streamlit_app_filepath
+            path=dashboard_filepath
         )
 
         self.finish(json.dumps({

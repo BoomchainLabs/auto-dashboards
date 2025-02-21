@@ -1,6 +1,6 @@
 {
   "name": "@orbrx/auto-dashboards",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Auto convert Jupyter notebooks to dashboards",
   "keywords": [
     "jupyter",
