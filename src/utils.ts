@@ -17,7 +17,8 @@
 
 import { LabIcon } from '@jupyterlab/ui-components';
 
-import iconSvg from '../style/streamlit-mark-color.svg';
+import streamlitIconSvg from '../style/streamlit-logo.svg';
+import solaraIconSvg from '../style/solara-logo.svg';
 
 export const CommandIDs = {
   open: 'streamlit:open',
@@ -28,7 +29,12 @@ export const CommandIDs = {
 
 export const streamlitIcon = new LabIcon({
   name: 'streamlit:icon',
-  svgstr: iconSvg
+  svgstr: streamlitIconSvg
+});
+
+export const solaraIcon = new LabIcon({
+  name: 'solara:icon',
+  svgstr: solaraIconSvg
 });
 
 export const getCookie = (key: string): string =>
