@@ -51,10 +51,22 @@ class DashboardManager(SingletonConfigurable):
     def list(self) -> Dict:
         return self.dashboard_instances
 
-    def start(self, path: str) -> 'BaseDashboard':
+    def start(self, path: str, app: str = "streamlit") -> 'BaseDashboard':
+        """
+        Start the dashboard application.
+        :param path: the path to the dashboard file
+        :param app: the type of dashboard application ("streamlit" or "solara")
+        """
         if path in self.dashboard_instances.keys():
             return self.dashboard_instances[path]
-        dashboard_app = StreamlitApplication(path=path)
+        
+        if app == "solara":
+            dashboard_app = SolaraApplication(path=path)
+        elif app == "streamlit":
+            dashboard_app = StreamlitApplication(path=path)
+        else:
+            raise ValueError(f"Invalid dashboard application type: {app}")
+        
         dashboard_app.start()
         self.dashboard_instances[path] = dashboard_app
         return dashboard_app

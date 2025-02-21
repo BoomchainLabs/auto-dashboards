@@ -19,6 +19,7 @@ import json
 import os
 from pathlib import Path
 
+from auto_dashboards.prompts import streamlit_prompt, solara_prompt
 import nbformat
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
@@ -41,24 +42,24 @@ class RouteHandler(APIHandler):
         # parse filename and location
         json_payload = self.get_json_body()
         dashboard_filepath = json_payload['file']
+        dashboard_type = json_payload['type']
 
-        streamlit_app = DashboardManager.instance().start(
-            path=dashboard_filepath
+        dashboard_app = DashboardManager.instance().start(
+            path=dashboard_filepath,
+            app=dashboard_type
         )
 
         self.finish(json.dumps({
-            "url": f"/proxy/{streamlit_app.port}/"
+            "url": f"/proxy/{dashboard_app.port}/"
         }))
 
     @tornado.web.authenticated
     def delete(self):
         # parse filename and location
         json_payload = self.get_json_body()
-        streamlit_app_filepath = json_payload['file']
+        path = json_payload['file']
 
-        DashboardManager.instance().stop(
-            path=streamlit_app_filepath
-        )
+        DashboardManager.instance().stop(path=path)
 
 
 class TranslateHandler(APIHandler):
@@ -68,6 +69,7 @@ class TranslateHandler(APIHandler):
         try:
             json_payload = self.get_json_body()
             notebook_path = json_payload['file']
+            dashboard_type = json_payload['type']
         except Exception as e:
             self.log.error(f"Error getting JSON payload: {e}")
             self.set_status(500)
@@ -84,16 +86,17 @@ class TranslateHandler(APIHandler):
             return
 
         # Construct prompt for LLM
-        prompt = "Translate the following Python code to Streamlit dashboard:\n\n"
-        prompt += "```python\n"
+        code = ""
         for cell in nb.cells:
             if cell.source.strip():
                 if cell.cell_type == 'code':
-                    prompt += cell.source + "\n\n"
+                    code += cell.source + "\n\n"
                 elif cell.cell_type == 'markdown':
-                    prompt += '# ' + cell.source.replace('\n', '\n# ') + "\n\n"
-        prompt += "```\n"
-        prompt += "Only output the Streamlit code and no comments or explanations."
+                    code += '# ' + cell.source.replace('\n', '\n# ') + "\n\n"
+        if dashboard_type == "streamlit":
+            prompt = streamlit_prompt(code)
+        elif dashboard_type == "solara":
+            prompt = solara_prompt(code)
 
         # Call LLM API
         try:
@@ -146,7 +149,8 @@ class TranslateHandler(APIHandler):
         # Start Streamlit app
         try:
             streamlit_app = DashboardManager.instance().start(
-                path=output_path
+                path=output_path,
+                app=dashboard_type
             )
             self.log.debug(f"Successfully started Streamlit app at: {streamlit_app.port}")
         except Exception as e:
