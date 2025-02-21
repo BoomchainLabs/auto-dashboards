@@ -69,11 +69,11 @@ export const checkCookie = (function () {
   };
 })();
 
-const getStreamlitApp = async (file: string): Promise<string | undefined> => {
+const getDashboardApp = async (file: string, type: string): Promise<string | undefined> => {
   try {
     const data = await requestAPI<any>('app', {
       method: 'POST',
-      body: JSON.stringify({ file })
+      body: JSON.stringify({ file, type })
     });
     return data.url;
   } catch (reason) {
@@ -82,7 +82,7 @@ const getStreamlitApp = async (file: string): Promise<string | undefined> => {
   }
 };
 
-const stopStreamlitApp = async (file: string): Promise<void> => {
+const stopDashboardApp = async (file: string): Promise<void> => {
   try {
     await requestAPI<any>('app', {
       method: 'DELETE',
@@ -101,7 +101,7 @@ const translateNotebook = async (
     console.log('translateNotebook called with file:', file);
     const data = await requestAPI<any>('translate', {
       method: 'POST',
-      body: JSON.stringify({ file })
+      body: JSON.stringify({ file, type: 'streamlit' })
     });
     console.log('translateNotebook response:', data);
     Notification.update({
@@ -219,7 +219,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        const urlPromise = getStreamlitApp(args.file);
+        const urlPromise = getDashboardApp(args.file, 'streamlit');
 
         const widget = new IFrame({
           sandbox: [
@@ -235,7 +235,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         main.title.caption = widget.title.label;
         main.id = widgetId;
         main.disposed.connect(() => {
-          stopStreamlitApp(args.file);
+          stopDashboardApp(args.file);
         });
 
         await tracker.add(main);
