@@ -18,6 +18,7 @@ limitations under the License.
 -->
 
 #  Auto Dashboards
+![orbrx](https://github.com/user-attachments/assets/99abd1a7-7e99-4d20-b72c-892e0d7804d8)
 
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/auto-dashboards)
 
