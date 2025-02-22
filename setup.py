@@ -74,6 +74,7 @@ setup_args = dict(
         "jupyter_server>=2,<3",
         "jupyter-server-proxy",
         "streamlit",
+        "solara",
         "nbformat",
         "openai"
     ],

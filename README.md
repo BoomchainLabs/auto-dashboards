@@ -23,6 +23,8 @@ limitations under the License.
 
 Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
+**New in version 0.2.0**: Create Solara dashboards!
+
 https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
 
 
