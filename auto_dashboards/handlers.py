@@ -97,6 +97,7 @@ class TranslateHandler(APIHandler):
             prompt = streamlit_prompt(code)
         elif dashboard_type == "solara":
             prompt = solara_prompt(code)
+        self.log.info(f"Prompt {prompt}")
 
         # Call LLM API
         try:

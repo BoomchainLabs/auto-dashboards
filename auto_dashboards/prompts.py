@@ -8,7 +8,7 @@ def streamlit_prompt(code: str):
     return prompt
 
 def solara_prompt(code: str):
-    prompt = "Translate the following Python code to Streamlit dashboard:\n\n"
+    prompt = "Translate the following Python code to Solara dashboard:\n\n"
     prompt += """For example, here is how sliders are created in Solara:
 ```python
 import solara

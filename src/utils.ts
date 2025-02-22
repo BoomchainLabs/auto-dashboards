@@ -24,7 +24,9 @@ export const CommandIDs = {
   open: 'streamlit:open',
   openFromBrowser: 'streamlit:open-browser',
   openFromEditor: 'streamlit:open-file',
-  translate: 'streamlit:translate'
+  translateBase: 'streamlit:translate-base',
+  translateToStreamlit: 'streamlit:translate-streamlit',
+  translateToSolara: 'streamlit:translate-solara',
 };
 
 export const streamlitIcon = new LabIcon({

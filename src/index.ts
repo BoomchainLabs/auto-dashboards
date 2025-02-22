@@ -95,13 +95,14 @@ const stopDashboardApp = async (file: string): Promise<void> => {
 
 const translateNotebook = async (
   file: string,
+  type: string,
   id: string
 ): Promise<string | undefined> => {
   try {
     console.log('translateNotebook called with file:', file);
     const data = await requestAPI<any>('translate', {
       method: 'POST',
-      body: JSON.stringify({ file, type: 'streamlit' })
+      body: JSON.stringify({ file, type })
     });
     console.log('translateNotebook response:', data);
     Notification.update({
@@ -163,17 +164,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
       void restorer.restore(tracker, {
         command: CommandIDs.open,
         args: widget => ({
-          file: widget.id.split(':')[1]
+          file: widget.id.split(':')[1],
+          type: 'streamlit'
         }),
         name: widget => widget.id
       });
     }
 
-    app.commands.addCommand(CommandIDs.translate, {
-      label: 'Translate Notebook to Streamlit',
-      icon: streamlitIcon,
-      execute: async () => {
-        console.log('Translate command executed');
+    app.commands.addCommand(CommandIDs.translateBase, {
+      execute: async (args: any) => {
         const widget = app.shell.currentWidget;
         if (!widget) {
           console.log('No active widget found');
@@ -196,19 +195,43 @@ const plugin: JupyterFrontEndPlugin<void> = {
           autoClose: false
         });
 
-        const url = await translateNotebook(filePath, id);
+        const url = await translateNotebook(filePath, args.type, id);
         console.log('translateNotebook returned URL:', url);
         if (url) {
           const translatedFilePath = filePath.replace(/\.ipynb$/, '.py');
-          await app.commands.execute(CommandIDs.open, { file: translatedFilePath });
+          await app.commands.execute(
+            CommandIDs.open, 
+            { 
+              file: translatedFilePath,
+              type: args.type
+            });
           Notification.dismiss(id);
         }
       },
     });
 
+    app.commands.addCommand(CommandIDs.translateToStreamlit, {
+      label: 'Translate Notebook to Streamlit',
+      icon: streamlitIcon,
+      execute: async () => {
+        await app.commands.execute(
+          CommandIDs.translateBase, { type: 'streamlit' }
+        );
+      }
+    });
+
+    app.commands.addCommand(CommandIDs.translateToSolara, {
+      label: 'Translate Notebook to Solara',
+      icon: streamlitIcon,
+      execute: async () => {
+        await app.commands.execute(
+          CommandIDs.translateBase, { type: 'solara' }
+        );
+      }
+    });
+
     app.commands.addCommand(CommandIDs.open, {
       label: 'Streamlit',
-      icon: streamlitIcon,
       execute: async (args: any) => {
         const widgetId = `${NAMESPACE}:${args.file}`;
         const openWidget = find(app.shell.widgets('main'), (widget, index) => {
@@ -219,7 +242,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           return;
         }
 
-        const urlPromise = getDashboardApp(args.file, 'streamlit');
+        const urlPromise = getDashboardApp(args.file, args.type);
 
         const widget = new IFrame({
           sandbox: [
@@ -275,22 +298,25 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
         const item = result.value;
         await app.commands.execute(CommandIDs.open, {
-          file: item.path
+          file: item.path,
+          type: 'streamlit'
         });
       }
     });
 
     app.commands.addCommand(CommandIDs.openFromEditor, {
-      execute: () => {
+      execute: (args: any) => {
         const widget = editorTracker.currentWidget;
         if (!widget) {
           return;
         }
         const path = widget.context.path;
-        return app.commands.execute(CommandIDs.open, { file: path });
+        return app.commands.execute(CommandIDs.open, { 
+          file: path,
+          type: args.type
+        });
       },
-      icon: streamlitIcon,
-      label: 'Run in Streamlit'
+      label: 'Run in Dashboard'
     });
 
     app.docRegistry.addWidgetExtension(
@@ -316,7 +342,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
   app.contextMenu.addItem({
     selector: '.jp-Notebook',
-    command: CommandIDs.translate,
+    command: CommandIDs.translateToStreamlit,
+    rank: 999
+  });
+
+  app.contextMenu.addItem({
+    selector: '.jp-Notebook',
+    command: CommandIDs.translateToSolara,
     rank: 999
   });
 

@@ -20,7 +20,7 @@ import { DocumentRegistry, DocumentWidget } from '@jupyterlab/docregistry';
 import { CommandRegistry } from '@lumino/commands';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 
-import { CommandIDs } from './utils';
+import { CommandIDs, streamlitIcon, solaraIcon } from './utils';
 
 export class StreamlitButtonExtension
   implements
@@ -31,32 +31,51 @@ export class StreamlitButtonExtension
     this.commands = commands;
   }
   createNew(widget: DocumentWidget): IDisposable {
-    let button: CommandToolbarButton | undefined;
+    let streamlitButton: CommandToolbarButton | undefined;
+    let solaraButton: CommandToolbarButton | undefined;
     const filePath = widget.context.path;
 
     if (filePath.endsWith('.py')) {
-      button = new CommandToolbarButton({
+      streamlitButton = new CommandToolbarButton({
         commands: this.commands,
         id: CommandIDs.openFromEditor,
         label: '',
-        args: { file: widget.context.path }
+        icon: streamlitIcon,
+        args: { file: widget.context.path, type: 'streamlit' }
+      });
+      solaraButton = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.openFromEditor,
+        label: '',
+        icon: solaraIcon,
+        args: { file: widget.context.path, type: 'solara' }
       });
     } else if (filePath.endsWith('.ipynb')) {
-      button = new CommandToolbarButton({
+      streamlitButton = new CommandToolbarButton({
         commands: this.commands,
-        id: CommandIDs.translate,
+        id: CommandIDs.translateToStreamlit,
         label: '',
-        args: { file: widget.context.path }
+        icon: streamlitIcon,
+      });
+      solaraButton = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.translateToSolara,
+        label: '',
+        icon: solaraIcon,
       });
     } else {
       
     }
-    if (button) {
-      widget.toolbar.insertItem(99, 'streamlit', button);
+    if (streamlitButton) {
+      widget.toolbar.insertItem(99, 'streamlit', streamlitButton);
+    }
+    if (solaraButton) {
+      widget.toolbar.insertItem(100, 'solara', solaraButton);
     }
 
     return new DisposableDelegate(() => {
-      button?.dispose();
+      streamlitButton?.dispose();
+      solaraButton?.dispose();
     });
   }
 }
