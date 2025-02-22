@@ -17,16 +17,15 @@ limitations under the License.
 {% endcomment %}
 -->
 
-# Auto Dashboards
+#  Auto Dashboards
 
-[![Github Actions Status](https://github.com/orbrx/auto-dashboards/workflows/Build/badge.svg)](https://github.com/orbrx/auto-dashboards/actions/workflows/build.yml)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/auto-dashboards)
 
 Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
 **New in version 0.2.0**: Create Solara dashboards!
 
 https://github.com/user-attachments/assets/aa2c25e1-c95a-470d-8879-0b4fb3c5e158
-
 
 ## Requirements
 
