@@ -33,10 +33,15 @@ https://github.com/user-attachments/assets/f7b040e5-a137-454f-bcb2-4c7b46b45288
 ## Requirements
 
 - JupyterLab >= 4.2
-- OpenAI
-    - you are required to provide your OpenAI API key to be able to convert notebooks to dashboards. Export it before starting JupyterLab:
+- OpenAI or OpenAI-compatible LLM
+    - For OpenAI:
     ```bash
     export OPENAI_API_KEY="your-api-key"
+    ```
+    - For local LLMs (like Ollama):
+    ```bash
+    export OPENAI_API_URL="http://localhost:11434/v1"
+    export OPENAI_MODEL="deepseek-coder-v2"  # or any other model you have pulled
     ```
 
 ## Install

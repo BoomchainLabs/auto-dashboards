@@ -101,10 +101,20 @@ class TranslateHandler(APIHandler):
 
         # Call LLM API
         try:
+            # Get optional API key and URL for OpenAI-compatible LLMs
             api_key = os.environ.get("OPENAI_API_KEY")
-            if not api_key:
-                raise ValueError("OPENAI_API_KEY environment variable not set.")
-            client = OpenAI(api_key=api_key)
+            api_url = os.environ.get("OPENAI_API_URL")
+            model_name = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+
+            # For local LLMs like Ollama, API key is not required
+            if not api_url and not api_key:
+                raise ValueError("Either OPENAI_API_KEY or OPENAI_API_URL must be set.")
+            
+            # Initialize client with appropriate configuration
+            client = OpenAI(
+                api_key=api_key if api_key else "not-needed",
+                base_url=api_url if api_url else None
+            )
 
             chat_completion = client.chat.completions.create(
                 messages=[
@@ -113,7 +123,7 @@ class TranslateHandler(APIHandler):
                         "content": prompt,
                     }
                 ],
-                model="gpt-4o-mini",
+                model=model_name,
             )
             generated_code = chat_completion.choices[0].message.content.strip()
 
