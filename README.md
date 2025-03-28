@@ -23,7 +23,9 @@ limitations under the License.
 
 Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
-**New in version 0.2.0**: Create Solara dashboards!
+**New in version 0.2.1**: Support for OpenAI-compatible and local LLMs like Ollama!
+
+**New in version 0.2.0**: Create Solara dashboards.
 
 https://github.com/user-attachments/assets/f7b040e5-a137-454f-bcb2-4c7b46b45288
 
