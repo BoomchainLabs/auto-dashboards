@@ -29,8 +29,11 @@ Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
 https://github.com/user-attachments/assets/f7b040e5-a137-454f-bcb2-4c7b46b45288
 
+## Features
 
-
+Supported output formats:
+- [Streamlit](https://github.com/streamlit/streamlit)
+- [Solara](https://github.com/widgetti/solara)
 
 ## Requirements
 
