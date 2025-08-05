@@ -17,11 +17,16 @@ limitations under the License.
 {% endcomment %}
 -->
 
-# ![orbrx](https://github.com/user-attachments/assets/99abd1a7-7e99-4d20-b72c-892e0d7804d8) Auto Dashboards
+<h1 align="center">
+  <img src="https://github.com/user-attachments/assets/99abd1a7-7e99-4d20-b72c-892e0d7804d8" alt="Auto Dashboards logo" height="64" valign="middle">
+  <span>Auto Dashboards</span>
+</h1>
+<p align="center">
+  Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
+</p>
 
-![PyPI - Downloads](https://img.shields.io/pypi/dm/auto-dashboards)
+[![PyPI Downloads](https://static.pepy.tech/badge/auto-dashboards/month)](https://pepy.tech/projects/auto-dashboards)
 
-Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 
 **New in version 0.2.1**: Support for OpenAI-compatible and local LLMs like Ollama!
 
