@@ -27,6 +27,7 @@ limitations under the License.
 
 [![PyPI Downloads](https://static.pepy.tech/badge/auto-dashboards/month)](https://pepy.tech/projects/auto-dashboards)
 
+**New in version 0.3.0**: Create Dash and Gradio dashboards.
 
 **New in version 0.2.1**: Support for OpenAI-compatible and local LLMs like Ollama!
 
@@ -48,10 +49,16 @@ Supported output formats:
     ```bash
     export OPENAI_API_KEY="your-api-key"
     ```
+    - For OpenRouter:
+    ```bash
+    export OPENAI_API_KEY="openrouter-api-key"
+    export OPENAI_API_BASE="https://openrouter.ai/api/v1"
+    export OPENAI_API_MODEL="openrouter/horizon-beta" # or any other model you have access to
+    ```
     - For local LLMs (like Ollama):
     ```bash
     export OPENAI_API_URL="http://localhost:11434/v1"
-    export OPENAI_MODEL="deepseek-coder-v2"  # or any other model you have pulled
+    export OPENAI_MODEL="gpt-oss:20b"  # or any other model you have pulled
     ```
 
 ## Install
