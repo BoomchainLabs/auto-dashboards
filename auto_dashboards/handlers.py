@@ -19,7 +19,7 @@ import json
 import os
 from pathlib import Path
 
-from auto_dashboards.prompts import streamlit_prompt, solara_prompt
+from auto_dashboards.prompts import streamlit_prompt, solara_prompt, dash_prompt
 import nbformat
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
@@ -62,6 +62,49 @@ class RouteHandler(APIHandler):
         DashboardManager.instance().stop(path=path)
 
 
+class ModelInfoHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        """Get model configuration information"""
+        try:
+            model_name = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+            api_url = os.environ.get("OPENAI_API_URL")
+            
+            # Determine model provider and type
+            model_provider = "openai"  # default
+            is_local = False
+            
+            if api_url:
+                api_url_lower = api_url.lower()
+                if "ollama" in api_url_lower or ":11434" in api_url_lower:
+                    model_provider = "ollama"
+                    is_local = True
+                elif "localhost" in api_url_lower or "127.0.0.1" in api_url_lower:
+                    is_local = True
+                    # Could be local OpenAI-compatible API or other local model
+                    if any(ollama_indicator in model_name.lower() for ollama_indicator in ["llama", "qwen", "phi", "gemma", "mistral", "codellama"]):
+                        model_provider = "ollama"
+                    else:
+                        model_provider = "local"
+            else:
+                # Check if model name suggests it's an Ollama model even without URL
+                if any(ollama_indicator in model_name.lower() for ollama_indicator in ["llama", "qwen", "phi", "gemma", "mistral", "codellama"]):
+                    model_provider = "ollama"
+                # Check for common OpenAI model patterns
+                elif any(openai_indicator in model_name.lower() for openai_indicator in ["gpt-", "text-", "davinci", "curie", "babbage", "ada"]):
+                    model_provider = "openai"
+            
+            self.finish(json.dumps({
+                "model_name": model_name,
+                "model_provider": model_provider,
+                "is_local": is_local
+            }))
+        except Exception as e:
+            self.log.error(f"Error getting model info: {e}")
+            self.set_status(500)
+            self.finish(json.dumps({"error": f"Error getting model info: {e}"}))
+
+
 class TranslateHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
@@ -97,6 +140,8 @@ class TranslateHandler(APIHandler):
             prompt = streamlit_prompt(code)
         elif dashboard_type == "solara":
             prompt = solara_prompt(code)
+        elif dashboard_type == "dash":
+            prompt = dash_prompt(code)
         self.log.info(f"Prompt {prompt}")
 
         # Call LLM API
@@ -169,9 +214,30 @@ class TranslateHandler(APIHandler):
             self.finish(json.dumps({"error": f"Error starting Streamlit app: {e}"}))
             return
 
-        # Return app URL
+        # Determine model provider for consistency with model-info endpoint
+        model_provider = "openai"  # default
+        if api_url:
+            api_url_lower = api_url.lower()
+            if "ollama" in api_url_lower or ":11434" in api_url_lower:
+                model_provider = "ollama"
+            elif "localhost" in api_url_lower or "127.0.0.1" in api_url_lower:
+                if any(ollama_indicator in model_name.lower() for ollama_indicator in ["llama", "qwen", "phi", "gemma", "mistral", "codellama"]):
+                    model_provider = "ollama"
+                else:
+                    model_provider = "local"
+        else:
+            # Check if model name suggests it's an Ollama model even without URL
+            if any(ollama_indicator in model_name.lower() for ollama_indicator in ["llama", "qwen", "phi", "gemma", "mistral", "codellama"]):
+                model_provider = "ollama"
+            # Check for common OpenAI model patterns
+            elif any(openai_indicator in model_name.lower() for openai_indicator in ["gpt-", "text-", "davinci", "curie", "babbage", "ada"]):
+                model_provider = "openai"
+
+        # Return app URL and model information
         self.finish(json.dumps({
-            "url": f"/proxy/{streamlit_app.port}/"
+            "url": f"/proxy/{streamlit_app.port}/",
+            "model_name": model_name,
+            "model_provider": model_provider
         }))
 
 
@@ -180,5 +246,10 @@ def setup_handlers(web_app):
     base_url = web_app.settings["base_url"]
     route_pattern = url_path_join(base_url, "streamlit", "app")
     translate_route_pattern = url_path_join(base_url, "streamlit", "translate")
-    handlers = [(route_pattern, RouteHandler), (translate_route_pattern, TranslateHandler)]
+    model_info_route_pattern = url_path_join(base_url, "streamlit", "model-info")
+    handlers = [
+        (route_pattern, RouteHandler), 
+        (translate_route_pattern, TranslateHandler),
+        (model_info_route_pattern, ModelInfoHandler)
+    ]
     web_app.add_handlers(host_pattern, handlers)

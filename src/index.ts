@@ -37,7 +37,7 @@ import path from 'path';
 import { StreamlitButtonExtension } from './button';
 
 import { requestAPI } from './handler';
-import { CommandIDs, getCookie, isNotebook, streamlitIcon } from './utils';
+import { CommandIDs, getCookie, isNotebook, streamlitIcon, solaraIcon, dashIcon } from './utils';
 
 const NAMESPACE = '@orbrx/auto-dashboards';
 
@@ -105,9 +105,28 @@ const translateNotebook = async (
       body: JSON.stringify({ file, type })
     });
     console.log('translateNotebook response:', data);
+    let modelInfo = '';
+    if (data.model_name) {
+      // Add visual indicators based on model provider
+      let modelIcon = '';
+      switch (data.model_provider) {
+        case 'openai':
+          modelIcon = '🤖 '; // Robot emoji for OpenAI
+          break;
+        case 'ollama':
+          modelIcon = '🦙 '; // Llama emoji for Ollama
+          break;
+        case 'local':
+          modelIcon = '💻 '; // Computer emoji for local models
+          break;
+        default:
+          modelIcon = '🔮 '; // Crystal ball for unknown/other
+      }
+      modelInfo = ` using ${modelIcon}${data.model_name}`;
+    }
     Notification.update({
       id,
-      message: 'Dashboard is ready',
+      message: `${type.charAt(0).toUpperCase() + type.slice(1)} dashboard is ready${modelInfo}`,
       type: 'success',
       autoClose: 2000
     });
@@ -191,7 +210,33 @@ const plugin: JupyterFrontEndPlugin<void> = {
         }
         console.log('Calling translateNotebook with path:', filePath);
 
-        const id = Notification.emit('Creating dashboard...', 'in-progress', {
+        // Get model info first
+        let modelInfo = '';
+        try {
+          const modelData = await requestAPI<any>('model-info');
+          if (modelData.model_name) {
+            // Add visual indicators based on model provider
+            let modelIcon = '';
+            switch (modelData.model_provider) {
+              case 'openai':
+                modelIcon = '🤖 '; // Robot emoji for OpenAI
+                break;
+              case 'ollama':
+                modelIcon = '🦙 '; // Llama emoji for Ollama
+                break;
+              case 'local':
+                modelIcon = '💻 '; // Computer emoji for local models
+                break;
+              default:
+                modelIcon = '🔮 '; // Crystal ball for unknown/other
+            }
+            modelInfo = ` with ${modelIcon}${modelData.model_name}`;
+          }
+        } catch (error) {
+          console.warn('Could not fetch model info:', error);
+        }
+
+        const id = Notification.emit(`Creating ${args.type} dashboard${modelInfo}...`, 'in-progress', {
           autoClose: false
         });
 
@@ -222,10 +267,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     app.commands.addCommand(CommandIDs.translateToSolara, {
       label: 'Translate Notebook to Solara',
-      icon: streamlitIcon,
+      icon: solaraIcon,
       execute: async () => {
         await app.commands.execute(
           CommandIDs.translateBase, { type: 'solara' }
+        );
+      }
+    });
+
+    app.commands.addCommand(CommandIDs.translateToDash, {
+      label: 'Translate Notebook to Dash',
+      icon: dashIcon,
+      execute: async () => {
+        await app.commands.execute(
+          CommandIDs.translateBase, { type: 'dash' }
         );
       }
     });

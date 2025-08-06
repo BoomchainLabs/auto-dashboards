@@ -20,7 +20,7 @@ import { DocumentRegistry, DocumentWidget } from '@jupyterlab/docregistry';
 import { CommandRegistry } from '@lumino/commands';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 
-import { CommandIDs, streamlitIcon, solaraIcon } from './utils';
+import { CommandIDs, streamlitIcon, solaraIcon, dashIcon } from './utils';
 
 export class StreamlitButtonExtension
   implements
@@ -33,6 +33,7 @@ export class StreamlitButtonExtension
   createNew(widget: DocumentWidget): IDisposable {
     let streamlitButton: CommandToolbarButton | undefined;
     let solaraButton: CommandToolbarButton | undefined;
+    let dashButton: CommandToolbarButton | undefined;
     const filePath = widget.context.path;
 
     if (filePath.endsWith('.py')) {
@@ -50,6 +51,13 @@ export class StreamlitButtonExtension
         icon: solaraIcon,
         args: { file: widget.context.path, type: 'solara' }
       });
+      dashButton = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.openFromEditor,
+        label: '',
+        icon: dashIcon,
+        args: { file: widget.context.path, type: 'dash' }
+      });
     } else if (filePath.endsWith('.ipynb')) {
       streamlitButton = new CommandToolbarButton({
         commands: this.commands,
@@ -63,6 +71,12 @@ export class StreamlitButtonExtension
         label: '',
         icon: solaraIcon,
       });
+      dashButton = new CommandToolbarButton({
+        commands: this.commands,
+        id: CommandIDs.translateToDash,
+        label: '',
+        icon: dashIcon,
+      });
     } else {
       
     }
@@ -72,10 +86,14 @@ export class StreamlitButtonExtension
     if (solaraButton) {
       widget.toolbar.insertItem(100, 'solara', solaraButton);
     }
+    if (dashButton) {
+      widget.toolbar.insertItem(101, 'dash', dashButton);
+    }
 
     return new DisposableDelegate(() => {
       streamlitButton?.dispose();
       solaraButton?.dispose();
+      dashButton?.dispose();
     });
   }
 }
