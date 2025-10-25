@@ -25,7 +25,7 @@ limitations under the License.
   Convert Jupyter notebooks to dashboards in one click and preview side-by-side.
 </p>
 
-[![PyPI Downloads](https://static.pepy.tech/badge/auto-dashboards/month)](https://pepy.tech/projects/auto-dashboards)
+[![auto-dashboards](https://marketplace.orbrx.io/api/badge/auto-dashboards?metric=downloads-month&leftColor=%23555&rightColor=%23F37620&style=flat)](https://marketplace.orbrx.io/extensions/auto-dashboards)
 
 **New in version 0.3.0**: Create Dash and Gradio dashboards.
 
