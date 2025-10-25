@@ -27,7 +27,7 @@ limitations under the License.
 
 [![auto-dashboards](https://marketplace.orbrx.io/api/badge/auto-dashboards?metric=downloads-month&leftColor=%23555&rightColor=%23F37620&style=flat)](https://marketplace.orbrx.io/extensions/auto-dashboards)
 
-**New in version 0.3.0**: Create Dash and Gradio dashboards.
+**New in version 0.3.0**: Create Dash dashboards.
 
 **New in version 0.2.1**: Support for OpenAI-compatible and local LLMs like Ollama!
 
@@ -40,6 +40,10 @@ https://github.com/user-attachments/assets/f7b040e5-a137-454f-bcb2-4c7b46b45288
 Supported output formats:
 - [Streamlit](https://github.com/streamlit/streamlit)
 - [Solara](https://github.com/widgetti/solara)
+- [Dash](https://github.com/plotly/dash)
+
+Coming soon:
+- [Gradio](https://github.com/gradio-app/gradio)
 
 ## Requirements
 
@@ -67,6 +71,27 @@ To install the extension, execute:
 
 ```bash
 pip install auto-dashboards
+```
+
+This installs the extension with just the core dependencies. To use dashboard conversion, install one or more framework extras:
+
+```bash
+# Install with a specific framework
+pip install auto-dashboards[streamlit]
+pip install auto-dashboards[solara]
+pip install auto-dashboards[dash]
+
+# Install with multiple frameworks
+pip install auto-dashboards[streamlit,dash]
+
+# Install with all supported frameworks
+pip install auto-dashboards[all]
+```
+
+If you installed the core extension without frameworks, you can add them later:
+
+```bash
+pip install streamlit solara dash
 ```
 
 ## Uninstall

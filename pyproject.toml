@@ -24,15 +24,20 @@ classifiers = [
 dependencies = [
     "jupyter_server>=2.4.0,<3",
     "jupyter-server-proxy",
-    "streamlit",
-    "solara",
-    "dash",
     "nbformat",
     "openai"
 ]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
+streamlit = ["streamlit"]
+solara = ["solara"]
+dash = ["dash"]
+all = [
+    "streamlit",
+    "solara",
+    "dash"
+]
 test = [
     "coverage",
     "pytest",
