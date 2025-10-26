@@ -59,7 +59,7 @@
     "@jupyterlab/filebrowser": "^4.2.0",
     "@jupyterlab/fileeditor": "^4.2.0",
     "@jupyterlab/services": "^7.0.0",
-    "@jupyterlab/ui-components": "^4.2.0",
+    "@jupyterlab/ui-components": "^4.4.5",
     "@lumino/algorithm": "^2.0.0",
     "@lumino/commands": "^2.0.0",
     "@lumino/disposable": "^2.0.0"
