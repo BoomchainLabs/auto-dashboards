@@ -52,17 +52,17 @@
     "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
-    "@jupyterlab/application": "^4.2.0",
+    "@jupyterlab/application": "^4.4.6",
     "@jupyterlab/apputils": "^4.2.0",
     "@jupyterlab/coreutils": "^4.2.0",
     "@jupyterlab/docregistry": "^4.2.0",
-    "@jupyterlab/filebrowser": "^4.2.0",
-    "@jupyterlab/fileeditor": "^4.2.0",
-    "@jupyterlab/services": "^7.0.0",
+    "@jupyterlab/filebrowser": "^4.4.6",
+    "@jupyterlab/fileeditor": "^4.4.7",
+    "@jupyterlab/services": "^7.4.5",
     "@jupyterlab/ui-components": "^4.2.0",
     "@lumino/algorithm": "^2.0.0",
     "@lumino/commands": "^2.0.0",
-    "@lumino/disposable": "^2.0.0"
+    "@lumino/disposable": "^2.1.4"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^4.2.0",
