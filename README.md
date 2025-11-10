@@ -134,17 +134,64 @@ The `jlpm` command is JupyterLab's pinned version of
 [yarn](https://yarnpkg.com/) that is installed with JupyterLab. You may use
 `yarn` or `npm` in lieu of `jlpm` below.
 
+#### Setup a fresh development environment
+
+We recommend creating a fresh development environment to avoid conflicts with existing installations.
+
+**Option 1: Using uv (recommended for faster setup)**
+
+Note: Requires Node.js 22 to be installed separately.
+
 ```bash
-# Clone the repo to your local environment
-# Change directory to the auto_dashboards directory
-# Install package in development mode
+# Create a virtual environment with Python 3.13
+uv venv --python 3.13
+
+# Install JupyterLab and framework dependencies
+uv pip install jupyterlab==4.4.10 streamlit
+
+# Activate the virtual environment
+source .venv/bin/activate
+```
+
+**Option 2: Using conda**
+
+```bash
+# Create a new conda environment with all dependencies
+conda create -n auto-dashboards -c conda-forge python=3.13 jupyterlab=4.4.10 nodejs=22
+
+# Activate the environment
+conda activate auto-dashboards
+
+# Install framework dependencies
+pip install streamlit
+```
+
+**Build and install the extension (applies to any environment):**
+
+```bash
+# Install Node.js dependencies
+jlpm install
+
+# Build the extension
+jlpm build
+
+# Install package in development mode (use 'uv pip install' for uv or 'pip install' for conda)
 pip install -e .
+
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
+
 # Server extension must be manually installed in develop mode
 jupyter server extension enable auto_dashboards
+
 # Rebuild extension Typescript source after making changes
 jlpm build
+```
+
+Start JupyterLab:
+
+```bash
+jupyter lab
 ```
 
 You can watch the source directory and run JupyterLab at the same time in different terminals to watch for changes in the extension's source and automatically rebuild the extension.
@@ -164,17 +211,49 @@ By default, the `jlpm build` command generates the source maps for this extensio
 jupyter lab build --minimize=False
 ```
 
-### Development uninstall
+#### Cleaning build artifacts
+
+If you encounter build errors or want to rebuild from scratch, clean the build artifacts first:
 
 ```bash
-# Server extension must be manually disabled in develop mode
-jupyter server extension disable auto_dashboards
-pip uninstall auto-dashboards
+# WARNING: This removes ALL git-ignored files (like node_modules, .venv, build artifacts)
+# Use with caution - make sure you've committed any important work!
+git clean -Xdf
+
+# Or clean only specific build outputs
+jlpm clean            # Clean TypeScript build outputs
+jlpm clean:all        # Complete clean (including labextension)
 ```
 
-In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
-command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `@orbrx/auto-dashboards` within that folder.
+Then rebuild:
+
+```bash
+jlpm build
+```
+
+### Development uninstall
+
+**For uv users:**
+
+```bash
+# Uninstall the package
+uv pip uninstall auto-dashboards
+
+# Optionally, remove the virtual environment
+deactivate
+rm -rf .venv
+```
+
+**For conda users:**
+
+```bash
+# Uninstall the package
+pip uninstall auto-dashboards
+
+# Optionally, remove the entire environment
+conda deactivate
+conda env remove -n auto-dashboards
+```
 
 ### Packaging the extension
 
