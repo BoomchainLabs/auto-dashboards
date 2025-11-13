@@ -58,7 +58,7 @@
     "@jupyterlab/docregistry": "^4.2.0",
     "@jupyterlab/filebrowser": "^4.2.0",
     "@jupyterlab/fileeditor": "^4.2.0",
-    "@jupyterlab/services": "^7.0.0",
+    "@jupyterlab/services": "^7.4.10",
     "@jupyterlab/ui-components": "^4.2.0",
     "@lumino/algorithm": "^2.0.0",
     "@lumino/commands": "^2.0.0",
